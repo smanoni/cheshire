@@ -130,6 +130,7 @@ module vip_cheshire_soc import cheshire_pkg::*; #(
       .axi_req_t          ( axi_llc_req_t ),
       .axi_rsp_t          ( axi_llc_rsp_t ),
       .WarnUninitialized  ( 0 ),
+      .UninitializedData  ( "zeros" ),
       .ClearErrOnAccess   ( 1 ),
       .ApplDelay          ( ClkPeriodSys * TAppl ),
       .AcqDelay           ( ClkPeriodSys * TTest )
@@ -191,6 +192,20 @@ module vip_cheshire_soc import cheshire_pkg::*; #(
 
   task set_boot_mode(input logic [1:0] mode);
     boot_mode = mode;
+  endtask
+
+  ////////////////////
+  // Direct Preload //
+  ////////////////////
+
+  // Pre-load a hexfile into simulated DRAM
+  task automatic direct_preload(input string hexfile);
+    if (UseDramSys) begin
+      $fatal(1, "Cannot preload hex file with UseDramSys == 1");
+    end else begin
+      $display("[TB] Preloading hex file: %s", hexfile);
+      $readmemh(hexfile, gen_no_dramsys.i_dram_sim_mem.mem);
+    end
   endtask
 
   ////////////
@@ -940,6 +955,22 @@ module vip_cheshire_soc import cheshire_pkg::*; #(
     end
     // Preload
     slink_elf_preload(binary, entry);
+    // Write entry point
+    slink_write_32(AmRegs + cheshire_reg_pkg::CHESHIRE_SCRATCH_1_OFFSET, entry[63:32]);
+    slink_write_32(AmRegs + cheshire_reg_pkg::CHESHIRE_SCRATCH_0_OFFSET, entry[32:0]);
+    // Resume hart 0
+    slink_write_32(AmRegs + cheshire_reg_pkg::CHESHIRE_SCRATCH_2_OFFSET, 2);
+    $display("[SLINK] Wrote launch signal and entry point 0x%h", entry);
+  endtask
+
+  // Run a binary
+  task automatic slink_run_from_entry(doub_bt entry);
+    // Wait for bootrom to ungate Serial Link
+    if (DutCfg.LlcNotBypass) begin
+      word_bt regval;
+      $display("[SLINK] Wait for LLC configuration");
+      slink_poll_bit0(AmLlc + axi_llc_reg_pkg::AXI_LLC_CFG_SPM_LOW_OFFSET, regval, 20);
+    end
     // Write entry point
     slink_write_32(AmRegs + cheshire_reg_pkg::CHESHIRE_SCRATCH_1_OFFSET, entry[63:32]);
     slink_write_32(AmRegs + cheshire_reg_pkg::CHESHIRE_SCRATCH_0_OFFSET, entry[32:0]);

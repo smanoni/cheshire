@@ -50,6 +50,14 @@ module tb_cheshire_soc #(
           fix.vip.slink_wait_for_eoc(exit_code);
         end 2: begin  // UART
           fix.vip.uart_debug_elf_run_and_wait(preload_elf, exit_code);
+        end 3: begin // Direct preload
+          if (UseDramSys) begin
+            $fatal(1, "Cannot preload hex image with DramSys enabled");
+          end else begin
+            fix.vip.direct_preload(preload_elf);
+            fix.vip.slink_run_from_entry(64'h8000_0000);
+            fix.vip.slink_wait_for_eoc(exit_code);
+          end
         end default: begin
           $fatal(1, "Unsupported preload mode %d (reserved)!", boot_mode);
         end

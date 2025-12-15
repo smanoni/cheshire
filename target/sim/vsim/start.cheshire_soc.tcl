@@ -51,5 +51,8 @@ if { [info exists USE_DRAMSYS] } {
 # tclint-disable-next-line command-args
 eval "vsim -c ${TESTBENCH} -t 1ps -vopt -voptargs=\"${VOPTARGS}\"" ${pargs} ${flags}
 
+eval "log -r /tb_cheshire_soc/fix/dut/gen_cva6_cores[0]/i_core_cva6/gen_cache_wb/i_cache_subsystem/*"
+eval "log -r /tb_cheshire_soc/fix/dut/gen_cva6_cores[0]/i_core_cva6/csr_regfile_i/cycle_q"
+
 set StdArithNoWarnings 1
 set NumericStdNoWarnings 1
