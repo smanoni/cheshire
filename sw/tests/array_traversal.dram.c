@@ -5,17 +5,11 @@
 #include "util.h"
 #include "matrix.h"
 
-//#define N 32
 #define REPEAT 2
 
-//static uint64_t A[N][N];
 volatile uint64_t sink;
 
-// =========================
-// Baseline: column-major (slow)
-// Returns: sum (no timing here)
-// =========================
-uint64_t baseline_col_major(void) {
+uint64_t baseline_mat_traversal(void) {
     uint64_t sum = 0;
     for (int r = 0; r < REPEAT; r++) {
         for (int j = 0; j < N; j++) {
@@ -27,11 +21,7 @@ uint64_t baseline_col_major(void) {
     return sum;
 }
 
-// =========================
-// Optimized: row-major (fast)
-// Returns: sum (no timing here)
-// =========================
-uint64_t optimized_row_major(void) {
+uint64_t optimized_mat_traversal(void) {
     uint64_t sum = 0;
     for (int r = 0; r < REPEAT; r++) {
         for (int i = 0; i < N; i++) {
@@ -54,13 +44,6 @@ int main(void)
     char msg[64];
     int len;
 
-    // Array Initialization
-    //for (int i = 0; i < N; i++) {
-    //    for (int j = 0; j < N; j++) {
-    //        A[i][j] = (uint64_t)(i + j);
-    //    }
-    //}
-
     // ===========================
     // Measure in main
     // ===========================
@@ -69,13 +52,14 @@ int main(void)
 
     // Baseline measurement
     start = get_mcycle();
-    uint64_t sum_baseline = baseline_col_major();
+    uint64_t sum_baseline = baseline_mat_traversal();
     end = get_mcycle();
     cycles_baseline = end - start;
 
     // Optimized measurement
     start = get_mcycle();
-    uint64_t sum_opt = optimized_row_major();
+    uint64_t sum_opt = 0;
+    sum_opt = optimized_mat_traversal();
     end = get_mcycle();
     cycles_opt = end - start;
 
