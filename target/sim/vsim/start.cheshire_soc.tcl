@@ -24,7 +24,8 @@ if { ![info exists CXX_PATH] } {
 # Set voptargs only if not already set to make overridable.
 # Default on fast simulation flags.
 if { ![info exists VOPTARGS] } {
-    set VOPTARGS "-O5 +acc=p+tb_cheshire_soc. +noacc=p+cheshire_soc. +acc=r+stream_xbar -permissive"
+    set VOPTARGS "-O5 +noacc=p+cheshire_soc. +acc=p+r+/tb_cheshire_soc/fix/dut/gen_cva6_cores[0]/i_core_cva6/ex_stage_i/lsu_i -permissive"
+    #set VOPTARGS "-O5 +noacc=p+cheshire_soc. -permissive"
 }
 
 set flags "-suppress 3009 -suppress 8386 -error 7 -cpppath ${CXX_PATH} "
@@ -51,8 +52,9 @@ if { [info exists USE_DRAMSYS] } {
 # tclint-disable-next-line command-args
 eval "vsim -c ${TESTBENCH} -t 1ps -vopt -voptargs=\"${VOPTARGS}\"" ${pargs} ${flags}
 
-eval "log -r /tb_cheshire_soc/fix/dut/gen_cva6_cores[0]/i_core_cva6/gen_cache_wb/i_cache_subsystem/*"
-eval "log -r /tb_cheshire_soc/fix/dut/gen_cva6_cores[0]/i_core_cva6/csr_regfile_i/cycle_q"
+eval "log -r /tb_cheshire_soc/fix/dut/gen_cva6_cores[0]/i_core_cva6/*"
+#eval "log -r /tb_cheshire_soc/fix/dut/gen_cva6_cores[0]/i_core_cva6/gen_cache_wb/i_cache_subsystem/*"
+#eval "log -r /tb_cheshire_soc/fix/dut/gen_cva6_cores[0]/i_core_cva6/csr_regfile_i/cycle_q"
 
 set StdArithNoWarnings 1
 set NumericStdNoWarnings 1

@@ -17,8 +17,9 @@
 #define L1_CACHE_LINES  (L1_CACHE_SIZE_BYTES / L1_CACHE_LINE_BYTES)
 #define ELEM_SIZE_BYTES (sizeof(uint64_t))
 
-#define KTILE (L1_CACHE_LINE_BYTES / ELEM_SIZE_BYTES)
-#define MTILE 126
+// Write the opt tiled GEMV with KTILE and MTILE
+#define KTILE 0
+#define MTILE 0
 
 // ============================================================
 // Data
@@ -50,36 +51,7 @@ void gemv_baseline_inner_product(uint64_t *y_out)
 
 void gemv_optimized_tiled_inner_product(uint64_t *y_out)
 {
-    for (int i = 0; i < M; i++) {
-        y_out[i] = 0;
-    }
-
-    // Tile over rows (M dimension)
-    for (int i0 = 0; i0 < M; i0 += MTILE) {
-        int iend = i0 + MTILE;
-        if (iend > M) {
-            iend = M;
-        }
-
-        // Tile over columns (K dimension)
-        for (int k0 = 0; k0 < K; k0 += KTILE) {
-            int kend = k0 + KTILE;
-            if (kend > K) {
-                kend = K;
-            }
-
-            for (int i = i0; i < iend; i++) {
-                uint64_t acc = y_out[i];  // current partial sum
-
-                // Inner product over this column tile
-                for (int k = k0; k < kend; k++) {
-                    acc += A[i][k] * x[k];
-                }
-
-                y_out[i] = acc;
-            }
-        }
-    }
+   // Your code here!
 }
 
 // ============================================================
