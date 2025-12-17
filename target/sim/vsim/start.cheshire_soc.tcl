@@ -24,7 +24,7 @@ if { ![info exists CXX_PATH] } {
 # Set voptargs only if not already set to make overridable.
 # Default on fast simulation flags.
 if { ![info exists VOPTARGS] } {
-    set VOPTARGS "-O5 +noacc=p+cheshire_soc. +acc=p+r+/tb_cheshire_soc/fix/dut/gen_cva6_cores[0]/i_core_cva6/ex_stage_i/lsu_i -permissive"
+    set VOPTARGS "-O5 +noacc=p+cheshire_soc. +acc=p+/tb_cheshire_soc/fix/dut/gen_cva6_cores[0]/i_core_cva6/id_stage_i+/tb_cheshire_soc/fix/dut/gen_cva6_cores[0]/i_core_cva6/ex_stage_i/lsu_i -permissive"
     #set VOPTARGS "-O5 +noacc=p+cheshire_soc. -permissive"
 }
 
