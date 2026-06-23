@@ -19,6 +19,19 @@ read_ip [exec realpath {*}[lrange $argv 2 end]]
 import_files -fileset constrs_1 -norecurse ${xilinx_root}/constraints/${proj}.xdc
 import_files -fileset constrs_1 -norecurse ${xilinx_root}/constraints/${board}.xdc
 
+# Load DRAM-controller-specific constraints when present. HBM is detected from
+# the IP list (the build always includes the hbm IP when USE_HBM=1), otherwise
+# fall back to the DDR4 constraints. Boards that keep all pins in their single
+# board XDC simply have no matching file and are skipped.
+if { [lsearch -glob $argv {*hbm*}] >= 0 } {
+    set mem_xdc ${xilinx_root}/constraints/${board}.hbm.xdc
+} else {
+    set mem_xdc ${xilinx_root}/constraints/${board}.ddr4.xdc
+}
+if { [file exists $mem_xdc] } {
+    import_files -fileset constrs_1 -norecurse $mem_xdc
+}
+
 # Load RTL sources
 source ${xilinx_root}/scripts/add_sources.${board}.tcl
 

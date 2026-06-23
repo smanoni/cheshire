@@ -53,9 +53,22 @@ CHS_XILINX_BOARDS := genesys2 vcu128 vcu118 u280
 CHS_XILINX_IPS_genesys2 := clkwiz vio mig7s
 CHS_XILINX_IPS_vcu128   := clkwiz vio ddr4
 CHS_XILINX_IPS_vcu118   := clkwiz vio ddr4
+ifeq ($(USE_HBM),1)
+CHS_XILINX_IPS_u280     := clkwiz vio hbm
+else
 CHS_XILINX_IPS_u280     := clkwiz vio ddr4
+endif
 
-$(CHS_XILINX_DIR)/scripts/add_sources.%.tcl: $(CHS_ROOT)/Bender.yml $(CHS_XILINX_HW)
+# Track the U280 DRAM selection so the generated source scripts are rebuilt when
+# USE_HBM is toggled (the add_sources filename only encodes the board, not the
+# memory type, so without this a stale DDR4/HBM script would be reused).
+CHS_XILINX_HBM_STAMP := $(CHS_XILINX_DIR)/build/.use_hbm.$(USE_HBM)
+$(CHS_XILINX_HBM_STAMP):
+	mkdir -p $(dir $@)
+	rm -f $(CHS_XILINX_DIR)/build/.use_hbm.*
+	touch $@
+
+$(CHS_XILINX_DIR)/scripts/add_sources.%.tcl: $(CHS_ROOT)/Bender.yml $(CHS_XILINX_HW) $(CHS_XILINX_HBM_STAMP)
 	$(BENDER) script vivado -t fpga -t $* $(CHS_BENDER_RTL_FLAGS) $(CHS_BENDER_$*_FLAGS) > $@
 
 define chs_xilinx_bit_rule

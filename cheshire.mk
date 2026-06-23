@@ -19,6 +19,14 @@ VLOGAN_ARGS ?= -kdb -nc -assert svaext +v2k -timescale=1ns/1ps
 CHS_BENDER_RTL_FLAGS ?= -t rtl -t cva6 -t cv64a6_imafdchsclic_sv39_wb
 CHS_BENDER_u280_FLAGS := -t bscane -t xilinx
 
+# Select the U280 DRAM controller: USE_HBM=1 swaps the DDR4 MIG for the in-package
+# HBM stacks. The `hbm` Bender target defines `TARGET_HBM`, which phy_definitions.svh
+# turns into `USE_HBM` (and suppresses `USE_DDR4`).
+USE_HBM ?= 0
+ifeq ($(USE_HBM),1)
+CHS_BENDER_u280_FLAGS += -t hbm
+endif
+
 # Define used paths (prefixed to avoid name conflicts)
 CHS_ROOT      ?= $(shell $(BENDER) path cheshire)
 CHS_REG_DIR   := $(shell $(BENDER) path register_interface)

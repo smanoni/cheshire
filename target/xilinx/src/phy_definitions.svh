@@ -47,7 +47,13 @@
 
 `ifdef TARGET_U280
   `define USE_RESETN
-  `define USE_DDR4
+  // Select the DRAM controller: the `hbm` Bender target (USE_HBM=1) defines
+  // TARGET_HBM and uses the in-package HBM stacks; otherwise default to DDR4.
+  `ifdef TARGET_HBM
+    `define USE_HBM
+  `else
+    `define USE_DDR4
+  `endif
   `define USE_VIO
 `endif
 

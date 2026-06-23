@@ -93,9 +93,8 @@ module cheshire_top_xilinx import cheshire_pkg::*; #(
 `endif
 
 `ifdef TARGET_U280
-`ifndef USE_HBM
+  // Driven low when DDR4 is used, or by the HBM IP thermal status under USE_HBM.
   output logic        hbm_cattrip_o,
-`endif
 `endif
 
 `ifdef USE_QSPI
@@ -170,6 +169,10 @@ module cheshire_top_xilinx import cheshire_pkg::*; #(
   wire sys_clk;
   wire soc_clk;
   wire usb_clk;
+`ifdef USE_HBM
+  // Dedicated ~200 MHz clock for the HBM user AXI domain (clkwiz clk_200 output).
+  wire hbm_axi_clk;
+`endif
 
   IBUFDS #(
     .IBUF_LOW_PWR ("FALSE")
@@ -183,6 +186,9 @@ module cheshire_top_xilinx import cheshire_pkg::*; #(
     .clk_in1  ( sys_clk ),
     .reset    ( '0 ),
     .locked   ( ),
+`ifdef USE_HBM
+    .clk_200  ( hbm_axi_clk ),
+`endif
     .clk_50   ( soc_clk ),
     .clk_48   ( usb_clk ),
     .clk_20   ( ),
@@ -265,9 +271,11 @@ module cheshire_top_xilinx import cheshire_pkg::*; #(
   assign jtag_trst_ni = 1'b1;
 `endif
 
+`ifdef TARGET_U280
 `ifndef USE_HBM
   // U280 requires HBM_CATTRIP to be held low unless real HBM thermal logic drives it.
   assign hbm_cattrip_o = 1'b0;
+`endif
 `endif
 
   //////////////////
@@ -586,6 +594,29 @@ module cheshire_top_xilinx import cheshire_pkg::*; #(
     .soc_req_i    ( axi_dram_mst_req ),
     .soc_rsp_o    ( axi_dram_mst_rsp ),
     .*
+  );
+`endif
+
+`ifdef USE_HBM
+  hbm_wrapper_xilinx #(
+    .axi_soc_aw_chan_t ( axi_llc_aw_chan_t ),
+    .axi_soc_w_chan_t  ( axi_llc_w_chan_t  ),
+    .axi_soc_b_chan_t  ( axi_llc_b_chan_t  ),
+    .axi_soc_ar_chan_t ( axi_llc_ar_chan_t ),
+    .axi_soc_r_chan_t  ( axi_llc_r_chan_t  ),
+    .axi_soc_req_t     ( axi_llc_req_t     ),
+    .axi_soc_resp_t    ( axi_llc_rsp_t     )
+  ) i_hbm_wrapper (
+    .soc_resetn_i  ( rst_n   ),
+    .soc_clk_i     ( soc_clk ),
+    // HBM reference and APB config clocks run off the 100 MHz system clock; the
+    // user AXI domain runs off the dedicated clkwiz output.
+    .hbm_ref_clk_i ( sys_clk ),
+    .hbm_apb_clk_i ( sys_clk ),
+    .hbm_axi_clk_i ( hbm_axi_clk ),
+    .hbm_cattrip_o ( hbm_cattrip_o ),
+    .soc_req_i     ( axi_dram_mst_req ),
+    .soc_rsp_o     ( axi_dram_mst_rsp )
   );
 `endif
 
