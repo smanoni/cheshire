@@ -170,7 +170,7 @@ module cheshire_top_xilinx import cheshire_pkg::*; #(
   wire soc_clk;
   wire usb_clk;
 `ifdef USE_HBM
-  // Dedicated ~200 MHz clock for the HBM user AXI domain (clkwiz clk_200 output).
+  // Dedicated 75 MHz clock for the HBM user AXI domain (clkwiz clk_75 output).
   wire hbm_axi_clk;
 `endif
 
@@ -187,7 +187,7 @@ module cheshire_top_xilinx import cheshire_pkg::*; #(
     .reset    ( '0 ),
     .locked   ( ),
 `ifdef USE_HBM
-    .clk_200  ( hbm_axi_clk ),
+    .clk_75   ( hbm_axi_clk ),
 `endif
     .clk_50   ( soc_clk ),
     .clk_48   ( usb_clk ),

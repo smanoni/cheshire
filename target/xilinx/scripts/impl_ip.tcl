@@ -90,9 +90,6 @@ switch $proj {
                     ] [get_ips $proj]
             }
             u280 {
-                # Same as vcu128 plus a 5th output (clk_200, ~200 MHz = VCO 1200/6)
-                # used as the HBM user AXI clock when USE_HBM=1. The extra output is
-                # left unconnected (harmless) for the DDR4 U280 build.
                 set_property -dict [list \
                     CONFIG.CLK_IN1_BOARD_INTERFACE {Custom} \
                     CONFIG.RESET_BOARD_INTERFACE {Custom} \
@@ -108,19 +105,19 @@ switch $proj {
                     CONFIG.CLK_OUT2_PORT {clk_48} \
                     CONFIG.CLK_OUT3_PORT {clk_20} \
                     CONFIG.CLK_OUT4_PORT {clk_10} \
-                    CONFIG.CLK_OUT5_PORT {clk_200} \
+                    CONFIG.CLK_OUT5_PORT {clk_75} \
                     CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {50.000} \
                     CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {48.000} \
                     CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {20.000} \
                     CONFIG.CLKOUT4_REQUESTED_OUT_FREQ {10.000} \
-                    CONFIG.CLKOUT5_REQUESTED_OUT_FREQ {200.000} \
+                    CONFIG.CLKOUT5_REQUESTED_OUT_FREQ {75.000} \
                     CONFIG.MMCM_CLKFBOUT_MULT_F {12.000} \
                     CONFIG.MMCM_CLKIN1_PERIOD {5.000} \
                     CONFIG.MMCM_CLKOUT1_DIVIDE {24} \
                     CONFIG.MMCM_CLKOUT2_DIVIDE {25} \
                     CONFIG.MMCM_CLKOUT3_DIVIDE {60} \
                     CONFIG.MMCM_CLKOUT4_DIVIDE {120} \
-                    CONFIG.MMCM_CLKOUT5_DIVIDE {6} \
+                    CONFIG.MMCM_CLKOUT5_DIVIDE {16} \
                     CONFIG.NUM_OUT_CLKS {5} \
                     CONFIG.CLKOUT1_JITTER {112.316} \
                     CONFIG.CLKOUT1_PHASE_ERROR {89.971} \
